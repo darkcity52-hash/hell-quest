@@ -26,9 +26,11 @@ jobs:
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # Aceptamos las licencias de Android antes de compilar
+          # Limpieza profunda para evitar errores de sesiones anteriores
+          rm -rf .buildozer
+          # Aceptar licencias de forma forzada
           yes | buildozer android debug --only-sdk-licenses || true
-          # Lanzamos la construcción final
+          # Compilar ignorando advertencias de herramientas viejas
           buildozer -v android debug
         continue-on-error: false
 
