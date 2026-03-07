@@ -26,7 +26,8 @@ jobs:
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          buildozer -v android debug
+          # Esta línea acepta las licencias automáticamente
+          yes | buildozer -v android debug
         continue-on-error: false
 
       - name: Upload APK
