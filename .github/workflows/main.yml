@@ -21,14 +21,16 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev
-          pip3 install --user --upgrade Cython virtualenv buildozer
+          pip3 install --upgrade Cython virtualenv buildozer
 
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # Aceptamos licencias antes de empezar
+          # Borramos cualquier rastro del intento fallido anterior
+          buildozer android clean
+          # Aceptamos licencias de nuevo por si acaso
           yes | buildozer android debug --only-sdk-licenses || true
-          # Forzamos el log nivel 2 para ver exactamente qué pasa si falla
+          # Construimos con el log detallado para ver el error real
           buildozer -v android debug log_level=2
         continue-on-error: false
 
