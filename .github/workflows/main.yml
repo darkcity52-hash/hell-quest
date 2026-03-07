@@ -15,7 +15,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.9' # Versión más estable para Buildozer
+          python-version: '3.10'
 
       - name: Install dependencies
         run: |
@@ -26,11 +26,9 @@ jobs:
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # Limpiamos todo rastro de basura de intentos anteriores
-          buildozer android clean
-          # Aceptamos licencias de forma silenciosa
+          # Aceptamos licencias de forma simple
           yes | buildozer android debug --only-sdk-licenses || true
-          # Compilamos
+          # Construcción directa sin limpiezas que borren carpetas necesarias
           buildozer -v android debug
         continue-on-error: false
 
