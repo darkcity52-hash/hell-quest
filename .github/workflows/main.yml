@@ -26,9 +26,11 @@ jobs:
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # Aceptamos licencias de forma definitiva
+          # Forzamos la aceptación de licencias de una forma más agresiva
+          mkdir -p ~/.android
+          touch ~/.android/repositories.cfg
           yes | buildozer android debug --only-sdk-licenses || true
-          # Forzamos a Buildozer a usar herramientas estables
+          # Construimos ignorando errores de sesiones pasadas
           buildozer -v android debug
         continue-on-error: false
 
