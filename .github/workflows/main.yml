@@ -26,9 +26,9 @@ jobs:
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # Solo aceptamos licencias, sin intentar limpiar carpetas inexistentes
+          # Aceptamos licencias de forma silenciosa
           yes | buildozer android debug --only-sdk-licenses || true
-          # Construcción directa con log detallado
+          # Construcción directa sin comandos de limpieza que causen FileNotFoundError
           buildozer -v android debug
         continue-on-error: false
 
