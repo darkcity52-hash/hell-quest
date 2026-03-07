@@ -26,12 +26,10 @@ jobs:
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # Limpiamos posibles intentos corruptos de red
-          rm -rf .buildozer
-          # Aceptamos licencias
+          # Aceptamos licencias antes de empezar
           yes | buildozer android debug --only-sdk-licenses || true
-          # Forzamos la descarga del SDK y herramientas antes del empaquetado
-          buildozer -v android debug
+          # Forzamos el log nivel 2 para ver exactamente qué pasa si falla
+          buildozer -v android debug log_level=2
         continue-on-error: false
 
       - name: Upload APK
