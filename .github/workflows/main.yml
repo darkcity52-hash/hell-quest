@@ -26,12 +26,13 @@ jobs:
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # ESTA ES LA CLAVE: Aceptar todas las licencias automáticamente
+          # Aceptar licencias a la fuerza
           mkdir -p ~/.android
           touch ~/.android/repositories.cfg
           yes | buildozer android debug --only-sdk-licenses || true
           
-          # Ahora sí, a compilar el APK
+          # COMANDO DE PODER: Limpiar y compilar en un solo paso
+          buildozer android clean
           buildozer -v android debug
         continue-on-error: false
 
