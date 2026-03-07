@@ -18,6 +18,7 @@ fullscreen = 1
 android.archs = arm64-v8a
 android.api = 31
 android.minapi = 21
+android.ndk = 25b
 
 # Permisos y Licencias (Lo que nos faltaba)
 android.permissions = VIBRATE, INTERNET, WRITE_EXTERNAL_STORAGE
