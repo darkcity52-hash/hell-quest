@@ -15,7 +15,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11' # Actualizamos a una versión de Python más sólida
 
       - name: Install dependencies
         run: |
@@ -26,11 +26,11 @@ jobs:
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # Limpieza profunda para evitar errores de sesiones anteriores
+          # Limpiamos todo rastro de intentos fallidos
           rm -rf .buildozer
-          # Aceptar licencias de forma forzada
+          # Comando para aceptar licencias sin saturar el sistema
           yes | buildozer android debug --only-sdk-licenses || true
-          # Compilar ignorando advertencias de herramientas viejas
+          # Forzamos la compilación
           buildozer -v android debug
         continue-on-error: false
 
