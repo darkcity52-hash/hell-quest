@@ -1,4 +1,4 @@
-[app]
+ [app]
 title = CodeQuest
 package.name = codequest
 package.domain = org.hellmat
@@ -15,3 +15,15 @@ android.api = 33
 android.minapi = 21
 android.window_soft_input_mode = adjustResize
 android.permissions = VIBRATE, INTERNET, WRITE_EXTERNAL_STORAGE
+<[buildozer]
+log_level = 2
+
+[app]
+android.accept_sdk_license = True
+p4a.branch = master
+[buildozer]
+log_level = 2
+
+[app]
+android.accept_sdk_license = True
+p4a.branch = master
