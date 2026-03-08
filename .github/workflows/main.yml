@@ -26,15 +26,15 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt update
-          # Librerías esenciales para evitar errores de compilación previos
+          # Librerías necesarias para que hostpython3 y el NDK no fallen
           sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev automake m4 libltdl-dev wget curl libsqlite3-dev gperf
-          # FORZAMOS CYTHON 0.29.33: Esta es la clave para evitar el error de los 10 minutos
+          # LA CLAVE: Forzamos Cython 0.29.33 para evitar el error de los 10 minutos
           pip3 install --user --upgrade "Cython<3.0" virtualenv "buildozer>=1.5.0"
 
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # Limpieza total para que el nuevo Cython trabaje sobre limpio
+          # Limpiamos todo rastro de compilaciones fallidas anteriores
           rm -rf .buildozer/android/platform/android-sdk
           rm -rf .buildozer/android/platform/android-ndk-r25b
           
