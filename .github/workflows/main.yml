@@ -21,14 +21,14 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-
+          python-version: '3.11' 
       - name: Install System Dependencies
         run: |
           sudo apt update
-          # Instalamos todo de una sola vez para evitar conflictos
-          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev automake m4 libltdl-dev wget curl
-          pip3 install --user --upgrade Cython virtualenv "buildozer>=1.5.0"
+          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev automake m4 libltdl-dev wget curl libsqlite3-dev gperf
+          # Forzamos Cython 0.29.33 que es la más estable para Kivy/Android
+          pip3 install --user --upgrade "Cython<3.0" virtualenv "buildozer>=1.5.0"
+
 
       - name: Build with Buildozer
         run: |
