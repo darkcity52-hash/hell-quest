@@ -26,29 +26,18 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt update
-          # Estas librerías evitan el error de Autoconf (LT_SYS_SYMBOL_USCORE)
-          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev automake m4 libltdl-dev
-          pip3 install --user --upgrade Cython virtualenv buildozer
-      - name: Install System Dependencies
-        run: | 
-          sudo apt update
+          # Instalamos todo de una sola vez para evitar conflictos
           sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev automake m4 libltdl-dev wget curl
           pip3 install --user --upgrade Cython virtualenv "buildozer>=1.5.0"
-
 
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # Limpiamos intentos previos para que no haya archivos corruptos
+          # Limpiamos rastros viejos para que la descarga sea nueva
           rm -rf .buildozer/android/platform/android-sdk
           rm -rf .buildozer/android/platform/android-ndk-r25b
-      - name: Install System Dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev automake m4 libltdl-dev wget curl
-          pip3 install --user --upgrade Cython virtualenv "buildozer>=1.5.0"
-
-          # Iniciamos la compilación detallada
+          
+          # Ejecutamos la compilación
           buildozer -v android debug
         continue-on-error: false
 
