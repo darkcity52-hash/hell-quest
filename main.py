@@ -1,41 +1,47 @@
-import kivy
-from kivy.app import App
-from kivy.uix.button import Button
-from kivy.uix.label import Label
-from kivy.uix.boxlayout import BoxLayout
-from kivy.core.window import Window
+name: Build CodeQuest APK
 
-# Forzamos un color de fondo para saber que funciona
-Window.clearcolor = (0.1, 0.1, 0.1, 1)
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
-class CodeQuestApp(App):
-    def build(self):
-        # Layout principal
-        layout = BoxLayout(orientation='vertical', padding=50, spacing=20)
-        
-        # Etiqueta de bienvenida
-        self.label = Label(
-            text="¡CodeQuest está Vivo!",
-            font_size='32sp',
-            color=(0, 1, 0, 1)  # Verde neón
-        )
-        
-        # Botón de prueba
-        btn = Button(
-            text="Presiona para iniciar Hell Quest",
-            size_hint=(1, 0.2),
-            background_color=(0.2, 0.6, 1, 1)
-        )
-        btn.bind(on_press=self.on_click)
-        
-        layout.add_widget(self.label)
-        layout.add_widget(btn)
-        
-        return layout
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-    def on_click(self, instance):
-        self.label.text = "¡Motor Kivy Funcionando!"
-        print("El botón fue presionado con éxito")
+    steps:
+      - uses: actions/checkout@v4
 
-if __name__ == "__main__":
-    CodeQuestApp().run()
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install System Dependencies
+        run: |
+          sudo apt update
+          # Añadimos libsqlite3-dev y gperf para solucionar el error de hostpython3
+          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev automake m4 libltdl-dev wget curl libsqlite3-dev gperf
+          pip3 install --user --upgrade Cython virtualenv "buildozer>=1.5.0"
+
+      - name: Build with Buildozer
+        run: |
+          export PATH=$PATH:$HOME/.local/bin
+          # Limpieza total de archivos temporales fallidos
+          rm -rf .buildozer/android/platform/android-sdk
+          rm -rf .buildozer/android/platform/android-ndk-r25b
+          
+          buildozer -v android debug
+        continue-on-error: false
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: CodeQuest-APK
+          path: bin/*.apk
