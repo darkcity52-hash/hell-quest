@@ -13,6 +13,19 @@ jobs:
         with:
           path: .buildozer
           key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
+      - name: Aceptar Licencias y Compilar
+        run: |
+          # 1. Configuración previa del SDK
+          mkdir -p ~/.android && touch ~/.android/repositories.cfg
+          
+          # 2. Aceptar licencias usando el sdkmanager directamente antes de Buildozer
+          # Esto evita el error de "Broken pipe" al no saturar el comando
+          export ANDROID_SDK_HOME=$HOME/.buildozer/android/platform/android-sdk
+          yes | $ANDROID_SDK_HOME/tools/bin/sdkmanager --licenses || true
+          
+          # 3. Compilación con log nivel 2 para ver errores detallados
+          buildozer android debug || buildozer android debug
+
 
       - name: Instalar Dependencias del Sistema
         run: |
@@ -20,14 +33,6 @@ jobs:
           sudo apt install -y python3-pip build-essential git python3-dev libncurses5-dev libffi-dev libssl-dev ccache cmake expect
           pip3 install --user --upgrade Cython==0.29.33 buildozer virtualenv
 
-      - name: Aceptar Licencias y Compilar
-        run: |
-          mkdir -p ~/.android && touch ~/.android/repositories.cfg
-          # Forzamos la aceptación de licencias de Google
-          yes | buildozer android debug
-        
-      - name: Subir el APK Terminado
-        uses: actions/upload-artifact@v4 # Actualizado a v4
-        with:
+       with:
           name: CodeQuest-APK-Final
           path: bin/*.apk
