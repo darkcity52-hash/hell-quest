@@ -1,45 +1,31 @@
 name: Build APK Final
-on: [push, pull_request]
+on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout del repositorio
-        uses: actions/checkout@v2
-
-      - name: Configurar Cache
+      - uses: actions/checkout@v2
+      - name: Cache Buildozer
         uses: actions/cache@v2
         with:
           path: .buildozer
           key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
 
-      - name: Instalar Dependencias del Sistema
+      - name: Install System Dependencies
         run: |
           sudo apt update
-          sudo apt install -y python3-pip build-essential git python3-dev python3-setuptools \
-          libncurses5-dev libffi-dev libssl-dev dkms libreadline-dev perl zlib1g-dev \
-          autoconf automake libtool ccache cmake expect antiword
-
-      - name: Instalar Cython y Buildozer
-        run: |
+          sudo apt install -y python3-pip build-essential git python3-dev libncurses5-dev libffi-dev libssl-dev ccache cmake expect
           pip3 install --user --upgrade Cython==0.29.33 buildozer virtualenv
 
-      - name: Aceptar Licencias y Compilar
+      - name: Accept Licenses and Build
         run: |
-          # 1. Asegurar que las carpetas de recursos existan
-          mkdir -p assets/icons
-          
-          # 2. Comando para aceptar todas las licencias de Android SDK automáticamente
-          # Esto evita el error de "license is not accepted"
           mkdir -p ~/.android && touch ~/.android/repositories.cfg
-          
-          # 3. Lanzar la compilación en modo debug
-          # Usamos 'yes' para responder afirmativamente a cualquier prompt de licencia
+          # Este comando acepta todas las licencias de Android
           yes | buildozer android debug
         
-      - name: Subir APK
+      - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: CodeQuest-Ready
+          name: CodeQuest-APK
           path: bin/*.apk
