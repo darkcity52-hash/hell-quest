@@ -13,10 +13,19 @@ jobs:
         with:
           path: .buildozer
           key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
-      - name: Aceptar Licencias y Compilar
+      -       - name: Aceptar Licencias y Compilar
         run: |
-          # 1. Configuración previa del SDK
+          # 1. Crear directorios base
           mkdir -p ~/.android && touch ~/.android/repositories.cfg
+          
+          # 2. Iniciar descarga y aceptar licencias de forma segura
+          # Usamos un parámetro que Buildozer entiende para aceptar licencias internamente
+          export APP_ANDROID_ACCEPT_SDK_LICENSE=True
+          
+          # 3. Compilación con reintento automático y log detallado
+          # Si falla la primera vez por descarga incompleta, el segundo intento lo soluciona
+          buildozer android debug || (sleep 5 && buildozer android debug)
+
           
           # 2. Aceptar licencias usando el sdkmanager directamente antes de Buildozer
           # Esto evita el error de "Broken pipe" al no saturar el comando
