@@ -1,5 +1,4 @@
 [app]
-# (Sección obligatoria)
 title = CodeQuest
 package.name = codequest
 package.domain = org.darkcity52
@@ -7,19 +6,18 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 source.include_patterns = assets/*, assets/icons/*
 
-# Pantalla de inicio corregida
+# Pantalla de inicio y versión estable
+version = 0.1
+orientation = portrait
 presplash.filename = %(source.dir)s/assets/icons/splash.png
 icon.filename = %(source.dir)s/assets/icons/helios.png
 
-version = 0.1
-orientation = portrait
-
-# Requerimientos para tu OnePlus 11
-requirements = python3,kivy
-android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE
+# Ajustes de Android para evitar errores de licencia
+android.api = 33
+android.sdk = 33
+android.minapi = 21
+android.ndk = 25b
+android.build_tools_version = 33.0.0
+android.accept_sdk_license = True
 android.archs = arm64-v8a
-android.allow_backup = True
-
-[buildozer]
-log_level = 2
-warn_on_root = 1
+requirements = python3,kivy
