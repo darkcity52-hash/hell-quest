@@ -1,48 +1,45 @@
-name: Build CodeQuest APK
-
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+name: Build APK Final
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout del repositorio
+        uses: actions/checkout@v2
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - name: Configurar Cache
+        uses: actions/cache@v2
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          path: .buildozer
+          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install System Dependencies
+      - name: Instalar Dependencias del Sistema
         run: |
           sudo apt update
-          # Librerías necesarias para que hostpython3 y el NDK no fallen
-          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev automake m4 libltdl-dev wget curl libsqlite3-dev gperf
-          # LA CLAVE: Forzamos Cython 0.29.33 para evitar el error de los 10 minutos
-          pip3 install --user --upgrade "Cython<3.0" virtualenv "buildozer>=1.5.0"
+          sudo apt install -y python3-pip build-essential git python3-dev python3-setuptools \
+          libncurses5-dev libffi-dev libssl-dev dkms libreadline-dev perl zlib1g-dev \
+          autoconf automake libtool ccache cmake expect antiword
 
-      - name: Build with Buildozer
+      - name: Instalar Cython y Buildozer
         run: |
-          export PATH=$PATH:$HOME/.local/bin
-          # Limpiamos todo rastro de compilaciones fallidas anteriores
-          rm -rf .buildozer/android/platform/android-sdk
-          rm -rf .buildozer/android/platform/android-ndk-r25b
-          
-          buildozer -v android debug
-        continue-on-error: false
+          pip3 install --user --upgrade Cython==0.29.33 buildozer virtualenv
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - name: Aceptar Licencias y Compilar
+        run: |
+          # 1. Asegurar que las carpetas de recursos existan
+          mkdir -p assets/icons
+          
+          # 2. Comando para aceptar todas las licencias de Android SDK automáticamente
+          # Esto evita el error de "license is not accepted"
+          mkdir -p ~/.android && touch ~/.android/repositories.cfg
+          
+          # 3. Lanzar la compilación en modo debug
+          # Usamos 'yes' para responder afirmativamente a cualquier prompt de licencia
+          yes | buildozer android debug
+        
+      - name: Subir APK
+        uses: actions/upload-artifact@v2
         with:
-          name: CodeQuest-APK
+          name: CodeQuest-Ready
           path: bin/*.apk
