@@ -13,7 +13,7 @@ class PantallaSeleccion(Screen):
         super().__init__(**kwargs)
         layout = FloatLayout()
 
-        # Imagen de fondo: splash.png (la de los 4 círculos)
+        # Imagen de fondo: splash.png 
         self.bg = Image(
             source='assets/icons/splash.png', 
             allow_stretch=True,
@@ -31,7 +31,7 @@ class PantallaSeleccion(Screen):
         # Izquierda (Nahomy)
         self.add_widget(Button(size_hint=(.22, .22), pos_hint={'center_x': .15, 'center_y': .5},
                                background_color=(0,0,0,0), on_press=lambda x: self.log("Nahomy")))
-        # Derecha (Usuario 4)
+        # Derecha (Nora)
         self.add_widget(Button(size_hint=(.22, .22), pos_hint={'center_x': .85, 'center_y': .5},
                                background_color=(0,0,0,0), on_press=lambda x: self.log("Usuario 4")))
 
