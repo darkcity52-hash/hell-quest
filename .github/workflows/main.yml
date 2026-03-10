@@ -3,40 +3,36 @@ name: Build APK Final 2026
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout del repositorio
-      uses: actions/checkout@v4
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
 
-    - name: Configurar Cache de Buildozer
-      uses: actions/cache@v4
-      with:
-        path: .buildozer
-        key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
+      - name: Instalar Dependencias del Sistema
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential git python3-dev libncurses5-dev libffi-dev libssl-dev ccache cmake libtool pkg-config autoconf automake libltdl-dev
+          pip3 install --user --upgrade Cython==0.29.33 buildozer virtualenv
 
-    - name: Instalar Dependencias del Sistema
-      run: |
-        sudo apt update
-        # Instalamos libtool, automake, autoconf Y sus binarios explícitamente
-        sudo apt install -y python3-pip build-essential git python3-dev libncurses5-dev libffi-dev libssl-dev ccache cmake expect automake autoconf libtool libtool-bin m4 zip unzip pkg-config
-        pip3 install --user --upgrade Cython==0.29.33 buildozer virtualenv
+      - name: Limpiar Cache y Compilar APK
+        run: |
+          # 1. Asegurar que las licencias se acepten automáticamente
+          export APP_ANDROID_ACCEPT_SDK_LICENSE=True
+          
+          # 2. Limpiar compilaciones previas con error (Crucial para corregir LT_SYS_SYMBOL_USCORE)
+          ~/.local/bin/buildozer android clean
+          
+          # 3. Compilar en modo debug
+          ~/.local/bin/buildozer android debug
 
-    - name: Aceptar Licencias y Compilar
-      run: |
-        mkdir -p ~/.android && touch ~/.android/repositories.cfg
-        export APP_ANDROID_ACCEPT_SDK_LICENSE=True
-        
-        # --- ESTO ES LO IMPORTANTE PARA PREVENIR EL ERROR ---
-        # 1. Forzamos a pkg-config a ver las herramientas de libtool
-        export PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/share/pkgconfig
-        # 2. Le decimos a aclocal (parte de autoconf) dónde están las macros de libtool
-        export ACLOCAL_PATH=/usr/share/aclocal
-        # 3. Limpieza de caché previa para asegurar que no use configuraciones corruptas
-        rm -rf .buildozer/android/platform/build-arm64-v8a/build/other_builds/libffi
-        
-        # Ejecutamos Buildozer
-        buildozer android debug || (sleep 5 && buildozer android debug)
+      - name: Subir APK resultante
+        uses: actions/upload-artifact@v4
+        with:
+          name: CodeQuest-Debug
+          path: bin/*.apk
