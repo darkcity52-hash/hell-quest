@@ -3,96 +3,100 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
 from kivy.core.window import Window
 from kivy.clock import Clock
+from kivy.animation import Animation
 
-# Configuración de fluidez para Android 16
-Window.softinput_mode = 'below_target'
+# --- EL SECRETO DE LA FLUIDEZ EN ANDROID 16 ---
+Window.softinput_mode = 'below_target' 
 
-# Diseño visual con lenguaje de "Misión"
 KV = '''
 <Introduccion>:
     canvas.before:
         Color:
-            rgba: 0.05, 0.05, 0.1, 1  # Fondo Espacio Profundo
+            rgba: 0.02, 0.02, 0.05, 1
         Rectangle:
             pos: self.pos
             size: self.size
     BoxLayout:
         orientation: 'vertical'
-        padding: 40
-        spacing: 20
+        padding: 30
         Label:
-            id: texto_maestro
-            text: ""
+            id: mensaje_maestro
+            text: "CONECTANDO CON EL ARÚSPICE..."
             markup: True
-            font_size: '20sp'
             halign: 'center'
+            font_size: '18sp'
         Button:
-            text: "ACEPTAR MISIÓN"
+            text: "SELLAR PACTO"
             size_hint: None, None
-            size: 250, 60
+            size: 200, 60
             pos_hint: {'center_x': 0.5}
-            opacity: 0
-            id: btn_inicio
             on_release: root.manager.current = 'vpn_panel'
 
 <PanelVPN>:
     BoxLayout:
         orientation: 'vertical'
+        canvas.before:
+            Color:
+                rgba: 0.02, 0.02, 0.08, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        
         Label:
-            text: "[color=00ffff]Santuario de Red[/color]\\n[size=15]Nivel: Iniciado[/size]"
+            text: "[color=00ffff]NÚCLEO DE RED[/color]"
             markup: True
             size_hint_y: 0.2
-        
-        # Representación del Túnel
-        BoxLayout:
-            id: area_tunel
-            size_hint_y: 0.4
-            Label:
-                text: "ESTADO: [color=ff3333]PROTECCIÓN DESACTIVADA[/color]"
-                markup: True
+            font_size: '22sp'
 
-        # El Teclado de PC Virtual (Base)
+        # Monitor de datos ligero
+        Label:
+            id: status_red
+            text: "Túnel: [color=ff3333]Inactivo[/color]"
+            markup: True
+            size_hint_y: 0.3
+
+        # Teclado Virtual Optimizado (No traba la vista)
         GridLayout:
-            cols: 10
-            size_hint_y: 0.4
-            padding: 2
-            spacing: 2
-            id: teclado_pc
+            id: teclado_grid
+            cols: 5
+            spacing: 5
+            padding: 10
+            size_hint_y: 0.5
 '''
 
 class Introduccion(Screen):
     def on_enter(self):
-        self.mensaje_inicial = (
-            "[color=00ff00]Arúspice de Silicio:[/color]\\n"
-            "Helios... Las murallas de Android 16 son altas,\\n"
-            "pero tu código es la llave.\\n\\n"
-            "[i]Tu primera reliquia te espera en la nube.[/i]"
-        )
-        Clock.schedule_once(self.escribir_texto, 0.5)
+        # Efecto de escritura para evitar lag al cargar
+        self.texto = "[color=00ff00]Maestro:[/color]\\nHelios, el túnel te espera.\\nLa privacidad es tu escudo."
+        self.ids.mensaje_maestro.text = ""
+        Clock.schedule_once(self.animar_texto, 0.2)
 
-    def escribir_texto(self, dt):
-        # Animación de máquina de escribir para la historia
-        def actualizar_label(interval):
-            actual = self.ids.texto_maestro.text
-            if len(actual) < len(self.mensaje_inicial):
-                self.ids.texto_maestro.text += self.mensaje_inicial[len(actual)]
+    def animar_texto(self, dt):
+        def add_char(interval):
+            actual = self.ids.mensaje_maestro.text
+            if len(actual) < len(self.texto):
+                self.ids.mensaje_maestro.text += self.texto[len(actual)]
             else:
-                self.ids.btn_inicio.opacity = 1
                 return False
-        Clock.schedule_interval(actualizar_label, 0.05)
+        Clock.schedule_interval(add_char, 0.04)
 
 class PanelVPN(Screen):
     def on_enter(self):
-        # Aquí generamos las teclas dinámicamente para no saturar el KV
-        teclas = ['Esc', '1', '2', '3', '4', 'Del', 'Tab', 'Q', 'W', 'E', 
-                  'Ctrl', 'A', 'S', 'D', 'F', 'Ent', 'Shift', 'Z', 'X', 'C']
+        # Generar teclas de forma asíncrona para no congelar la UI
+        Clock.schedule_once(self.crear_teclado, 0.1)
+
+    def crear_teclado(self, dt):
+        self.ids.teclado_grid.clear_widgets()
+        teclas = ['ESC', 'UP', 'DEL', 'TAB', 'ENT', 
+                  'CTRL', 'A', 'S', 'D', 'F']
         for t in teclas:
-            self.ids.teclado_pc.add_widget(Button(text=t, font_size='12sp'))
+            btn = Button(text=t, background_color=(0.1, 0.4, 0.4, 1))
+            self.ids.teclado_grid.add_widget(btn)
 
 class CodeQuest(App):
     def build(self):
         Builder.load_string(KV)
-        sm = ScreenManager(transition=FadeTransition(duration=0.8))
+        sm = ScreenManager(transition=FadeTransition(duration=0.5))
         sm.add_widget(Introduccion(name='intro'))
         sm.add_widget(PanelVPN(name='vpn_panel'))
         return sm
