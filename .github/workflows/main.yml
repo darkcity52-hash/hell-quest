@@ -3,8 +3,6 @@ name: Build APK Final 2026
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
   build:
@@ -20,18 +18,20 @@ jobs:
           sudo apt install -y build-essential git python3-dev libncurses5-dev libffi-dev libssl-dev ccache cmake libtool pkg-config autoconf automake libltdl-dev
           pip3 install --user --upgrade Cython==0.29.33 buildozer virtualenv
 
-      - name: Limpiar Cache y Compilar APK
+      - name: Compilar APK
         run: |
-          # 1. Asegurar que las licencias se acepten automáticamente
+          # 1. Aceptar licencias
           export APP_ANDROID_ACCEPT_SDK_LICENSE=True
           
-          # 2. Limpiar compilaciones previas con error (Crucial para corregir LT_SYS_SYMBOL_USCORE)
-          ~/.local/bin/buildozer android clean
+          # 2. En lugar de 'clean', borramos solo la carpeta de la plataforma 
+          # para forzar a python-for-android a reinstalarse correctamente
+          rm -rf .buildozer/android/platform
           
-          # 3. Compilar en modo debug
+          # 3. Ejecutar la compilación directamente
+          # Usamos la ruta completa para asegurar que encuentre el ejecutable
           ~/.local/bin/buildozer android debug
 
-      - name: Subir APK resultante
+      - name: Subir APK
         uses: actions/upload-artifact@v4
         with:
           name: CodeQuest-Debug
