@@ -21,11 +21,13 @@ jobs:
     - name: Instalar Dependencias del Sistema
       run: |
         sudo apt update
-        sudo apt install -y python3-pip build-essential git python3-dev libncurses5-dev libffi-dev libssl-dev ccache cmake expect automake autoconf libtool
+        sudo apt install -y python3-pip build-essential git python3-dev libncurses5-dev libffi-dev libssl-dev ccache cmake expect automake autoconf libtool libtool-bin
         pip3 install --user --upgrade Cython==0.29.33 buildozer virtualenv
 
     - name: Aceptar Licencias y Compilar
       run: |
         mkdir -p ~/.android && touch ~/.android/repositories.cfg
         export APP_ANDROID_ACCEPT_SDK_LICENSE=True
+        # Forzamos a que encuentre las macros de libtool
+        export AC_LOCAL_FLAGS="-I /usr/share/aclocal"
         buildozer android debug || (sleep 5 && buildozer android debug)
